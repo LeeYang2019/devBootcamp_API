@@ -15,6 +15,9 @@ const bootcamps = require('./routes/bootcamps');
 
 const app = express();
 
+//Body parser
+app.use(express.json());
+
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
 	app.use(morgan('dev'));
@@ -33,6 +36,6 @@ const server = app.listen(PORT, () =>
 
 //handle unhandled promise rejections
 process.on('unhandledRejection', (error, promise) => {
-	console.log(`Error: ${err.message}`.red);
+	console.log(`Error: ${error.message}`.red);
 	server.close(() => process.exit(1));
 });
