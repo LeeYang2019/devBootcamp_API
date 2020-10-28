@@ -15,7 +15,8 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 	// fields to exclude so it is not looked as a field in the query
 	const removeFields = ['select', 'sort', 'page', 'limit'];
 
-	// loop over removeFields and delete them from reqQuery
+	// loop over and delete removeFields from reqQuery
+	// so that they are not considered fields
 	removeFields.forEach((field) => delete reqQuery[field]);
 
 	//create query string
@@ -27,39 +28,59 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 		(match) => `$${match}`
 	);
 
-	//finding resource
+	//finding resource query
 	query = Bootcamp.find(JSON.parse(queryStr));
 
 	// select fields
 	if (req.query.select) {
 		const fields = req.query.select.split(',').join(' ');
-		query = query.select(fields);
+		query = query.select(fields); //query with select statement
 	}
 
 	//sort
 	if (req.query.sort) {
 		const sortBy = req.query.sort.split(',').join(' ');
-		query = query.sort(sortBy);
+		query = query.sort(sortBy); //query with sort statement
 	} else {
 		// return sort in descending order
 		query = query.sort('-createdAt');
 	}
 
 	//pagination
-	const page = parseInt(req.query.page, 10) || 1;
-	const limit = parseInt(req.query.limit, 10) || 100;
-	const skip = (page - 1) * limit;
+	const page = parseInt(req.query.page, 10) || 1; //returns string in base 10  (0 - 9)
+	const limit = parseInt(req.query.limit, 10) || 25;
+	const startIndex = (page - 1) * limit;
+	const endIndex = page * limit;
+	const total = await Bootcamp.countDocuments();
 
-	query = query.skip(skip).limit(limit);
+	query = query.skip(startIndex).limit(limit);
 
 	//executing query
 	const bootcamps = await query;
 
-	if (!bootcamps) return res.status(400).json({ success: false });
+	//pagination result
+	const pagination = {};
 
-	res
-		.status(200)
-		.json({ success: true, count: bootcamps.length, data: bootcamps });
+	if (endIndex < total) {
+		pagination.next = {
+			page: page + 1,
+			limit,
+		};
+	}
+
+	if (startIndex > 0) {
+		pagination.prev = {
+			page: page - 1,
+			limit,
+		};
+	}
+
+	res.status(200).json({
+		success: true,
+		count: bootcamps.length,
+		pagination,
+		data: bootcamps,
+	});
 });
 
 // @desc    GET a bootcamp
@@ -133,6 +154,7 @@ exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
 	const lat = loc[0].latitude;
 	const lng = loc[0].longitude;
 
+	//divide distance by radius of the earth
 	const radius = distance / 3963;
 
 	const bootcamps = await Bootcamp.find({
