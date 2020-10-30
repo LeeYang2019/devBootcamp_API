@@ -4,9 +4,26 @@ const Course = require('../models/Course');
 
 // @Desc    GET all courses
 // @Route   GET /api/v1/courses
+// @Route   GET /api/v1/bootcamps/:bootcampId/courses
 // @Access  Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
-	const courses = await Course.find();
+	let query;
+
+	//check to see if a bootcampId has also been provided
+	if (req.params.bootcampId) {
+		//get all courses associated with the bootcampId
+		query = Course.find({ bootcamp: req.params.bootcampId });
+	} else {
+		//get all courses
+		// query = Course.find().populate('bootcamp');
+		//populate allows me not to have to call simultaneous routes
+		query = Course.find().populate({
+			path: 'bootcamp',
+			select: 'name, description',
+		});
+	}
+
+	const courses = await query;
 	res.status(200).json({ success: true, count: courses.length, data: courses });
 });
 

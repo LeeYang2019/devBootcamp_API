@@ -7,7 +7,8 @@ const {
 	postCourse,
 } = require('../controllers/courses');
 
-const router = express.Router();
+//include mergeParams so other routes could be passed to other routes
+const router = express.Router({ mergeParams: true });
 
 //routes without passing id
 router.route('/').get(getCourses).post(postCourse);
