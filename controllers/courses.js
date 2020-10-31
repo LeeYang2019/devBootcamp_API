@@ -2,6 +2,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Course = require('../models/Course');
 const Bootcamp = require('../models/Bootcamp');
+const { findById } = require('../models/Bootcamp');
 
 // @Desc    GET all courses
 // @Route   GET /api/v1/courses
@@ -91,4 +92,15 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 // @Desc    Delete a course
 // @Route   Delete /api/v1/courses/:id
 // @Access  Private
-exports.deleteCourse = asyncHandler(async (req, res, next) => {});
+exports.deleteCourse = asyncHandler(async (req, res, next) => {
+	const course = await Course.findById(req.params.id);
+
+	if (!course)
+		return next(
+			new ErrorResponse(`Course not found for id${req.params.id}`, 404)
+		);
+
+	await course.remove();
+
+	res.status(200).json({});
+});
