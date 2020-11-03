@@ -13,6 +13,8 @@ const advancedResults = require('../middleware/advancedResults');
 //include mergeParams so other routes could be passed to other routes
 const router = express.Router({ mergeParams: true });
 
+const { protect, authorize } = require('../middleware/auth');
+
 //routes without passing id
 router
 	.route('/')
@@ -23,9 +25,13 @@ router
 		}),
 		getCourses
 	)
-	.post(postCourse);
+	.post(protect, authorize('publisher', 'admin'), postCourse);
 
 //routes requiring an id
-router.route('/:id').get(getCourse).put(updateCourse).delete(deleteCourse);
+router
+	.route('/:id')
+	.get(getCourse)
+	.put(protect, authorize('publisher', 'admin'), updateCourse)
+	.delete(protect, authorize('publisher', 'admin'), deleteCourse);
 
 module.exports = router;
