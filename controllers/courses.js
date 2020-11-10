@@ -114,16 +114,21 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
 		return next(
 			new ErrorResponse(`Course not found for id${req.params.id}`, 404)
 		);
-	console.log(course);
+
 	//make sure course owner is logged in user
-	// if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
-	// 	return next(
-	// 		new ErrorResponse(
-	// 			`User ${req.user.id} is not authorized to delete course ${course._id}`,
-	// 			401
-	// 		)
-	// 	);
-	// }
+	console.log(course.user.toString());
+	console.log(req.user.id);
+	console.log(course.user.toString() !== req.user.id);
+
+	if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+		console.log('error executes');
+		return next(
+			new ErrorResponse(
+				`User ${req.user.id} is not authorized to delete course ${course._id}`,
+				401
+			)
+		);
+	}
 
 	await course.remove();
 
