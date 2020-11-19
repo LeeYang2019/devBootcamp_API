@@ -87,6 +87,7 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 			new ErrorResponse(`Course not found for id ${req.params.id}`, 404)
 		);
 
+	//make sure user is course owner
 	if (course.user.id.toString() !== req.user.id && req.user.role !== 'admin') {
 		return next(
 			new ErrorResponse(
@@ -116,10 +117,6 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
 		);
 
 	//make sure course owner is logged in user
-	console.log(course.user.toString());
-	console.log(req.user.id);
-	console.log(course.user.toString() !== req.user.id);
-
 	if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
 		console.log('error executes');
 		return next(
