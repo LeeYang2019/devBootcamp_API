@@ -6,22 +6,25 @@ const User = require('../models/User');
 exports.protect = asynHandler(async (req, res, next) => {
 	let token;
 
+	//if authorization is defined/exist and has bearer token
 	if (
 		req.headers.authorization &&
 		req.headers.authorization.startsWith('Bearer')
 	) {
+		//get the second element in the authorization array
 		token = req.headers.authorization.split(' ')[1];
 	}
 
-	//make sure token exists
+	//if undefined or does not exist
 	if (!token)
 		return next(new ErrorResponse(`No authorized to access this route`, 401));
 
 	try {
+		//decode token and get id
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+		//get user by decoded id
 		req.user = await User.findById(decoded.id);
-
+		//pass user
 		next();
 	} catch (error) {
 		return next(new ErrorResponse(`Not authorized to access this route`, 401));
