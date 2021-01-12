@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(mongoSanitize());
 
 //set security headers
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 
 //prevent cross-site scripting text
 app.use(xss());
