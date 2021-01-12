@@ -30,7 +30,10 @@ router
 	.post(protect, authorize('user', 'admin'), addReview);
 
 //route with id
-router.route('/:id').get(getReview);
-//.put(updateReview).delete(deleteReview);
+router
+	.route('/:id')
+	.get(getReview)
+	.put(protect, authorize('user', 'admin'), updateReview)
+	.delete(protect, authorize('user', 'admin'), deleteReview);
 
 module.exports = router;

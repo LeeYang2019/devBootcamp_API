@@ -1,8 +1,5 @@
-//bring in ErrorResponse
 const ErrorResponse = require('../middleware/error');
-//bring in AsyncHandler
 const asyncHandler = require('../middleware/async');
-//bring in reviews model
 const Review = require('../models/Review');
 const Bootcamp = require('../models/Bootcamp');
 
@@ -26,7 +23,7 @@ exports.getReviews = asyncHandler(async (req, res, next) => {
 // @desc    GET a single review
 // @route	GET /api/v1/reviews/:id
 // @access	public
-exports.getReview = asyncHandler(async (req, res) => {
+exports.getReview = asyncHandler(async (req, res, next) => {
 	const review = await Review.findById(req.params.id).populate({
 		path: 'bootcamp',
 		select: 'name description',
@@ -44,7 +41,7 @@ exports.getReview = asyncHandler(async (req, res) => {
 // @desc    POST add a review
 // @route	POST /api/v1/bootcamps/:bootcampId/reviews
 // @access	Private
-exports.addReview = asyncHandler(async (req, res) => {
+exports.addReview = asyncHandler(async (req, res, next) => {
 	req.body.bootcamp = req.params.bootcampId;
 	req.body.user = req.user.id;
 
@@ -70,7 +67,7 @@ exports.addReview = asyncHandler(async (req, res) => {
 // @desc    PUT update a review
 // @route	POST /api/v1/reviews/:id
 // @access	Private
-exports.updateReview = asyncHandler(async (req, res) => {
+exports.updateReview = asyncHandler(async (req, res, next) => {
 	let review = await Review.findById(req.params.id);
 
 	if (!review) {
@@ -89,8 +86,27 @@ exports.updateReview = asyncHandler(async (req, res) => {
 		runValidators: true,
 	});
 
-	res.status(200).json({});
+	res.status(200).json({ review });
 });
 
 // @desc    Delete a review
-exports.deleteReview = asyncHandler(async (req, res) => {});
+// @route	DELETE /api/v1/reviews/:id
+// @access	Private
+exports.deleteReview = asyncHandler(async (req, res, next) => {
+	const review = await Review.findById(req.params.id);
+
+	if (!review) {
+		return next(
+			new ErrorResponse(`No review with the id of ${req.params.id}`, 400)
+		);
+	}
+
+	// if review belongs to user (user or admin)
+	if (review.user.toString() !== req.user.id && req.user.role !== 'admin') {
+		return next(new ErrorResponse(`Not authorized to update review`, 401));
+	}
+
+	await Review.deleteOne();
+
+	res.status(200).json({});
+});
