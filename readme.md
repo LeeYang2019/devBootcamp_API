@@ -1,6 +1,9 @@
 # DevCamper API
 
+## Description
 > Backend API for DevCamper application, a bootcamp directory
+
+Technologies: Nodejs, Expressjs, JWT Tokens, Digital Ocean
 
 ## Usage
 
