@@ -3,7 +3,7 @@
 ## Description
 > Backend API for DevCamper application, a bootcamp directory
 
-Technologies: Nodejs, Expressjs, JWT Tokens, Digital Ocean
+Technologies: Nodejs, Expressjs, JWT Tokens, sendMail API, MapQuest API, Digital Ocean
 
 ## Usage
 
