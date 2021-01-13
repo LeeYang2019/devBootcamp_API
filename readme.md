@@ -22,7 +22,7 @@ yarn dev
 yarn start
 ```
 
-## Screenshot of Application
+### Screenshots of application
 ![bootcamp](https://user-images.githubusercontent.com/46943342/104406996-acbf3200-552e-11eb-8429-ca3326ce0428.jpg)
 
 - Version 1.0.0
